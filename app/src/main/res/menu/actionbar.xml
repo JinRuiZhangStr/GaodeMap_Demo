@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/night"
+        android:title="夜景"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/in_door"
+        android:title="室内"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/nav"
+        android:title="导航"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/day"
+        android:title="白昼"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/location"
+        android:title="定位"
+        app:showAsAction="never" />
+</menu>
