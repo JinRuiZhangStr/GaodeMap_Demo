@@ -1,6 +1,7 @@
 package com.example.gaodemap_demo;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -66,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
     private Marker currentMarker;
     private LatLng mylatlng;
     private LatLng latlog;
+    private Intent intent;
+    private AlertDialog innerNavDialog;
+    boolean innerNavDialogFlag=true;
 
 
     @Override
@@ -135,7 +140,12 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
             @Override
             public void onInfoWindowClick(Marker marker) {
                 initLv(value);
-                dialog.show();
+                if (dialog!=null){
+                    dialog.show();
+                }
+                if (innerNavDialog!=null){
+                    innerNavDialog.show();
+                }
             }
         });
 
@@ -189,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
             case R.id.location:
                 MyLocationStyle myLocationStyle;
                 myLocationStyle = new MyLocationStyle();
+                myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATE);
+
                 myLocationStyle.interval(2000);
                 myLocationStyle.showMyLocation(true);
                 mmap.setMyLocationStyle(myLocationStyle);
@@ -304,6 +316,10 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
         }
         if (installbaidu) {
             list.add("百度地图");
+        }else {
+            intent = new Intent(MainActivity.this,NavActivity.class);
+            initInnerNavDialog(innerNavDialogFlag);
+            return;
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
         lv.setAdapter(adapter);
@@ -327,6 +343,30 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
         builder.setView(lv);
         dialog = builder.create();
 
+    }
+
+    private void initInnerNavDialog(boolean b) {
+        if (!b){
+            return;
+        }
+        if (b){
+            b=false;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        final String[] navtypes={"自动","驾车","骑行","步行"};
+        builder.setItems(navtypes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("mylocation",mylatlng);
+                bundle.putParcelable("deslocation",latLonPoint);
+                bundle.putString("navitype",navtypes[which]);
+                intent.putExtra("bundle",bundle);
+                startActivity(intent);
+            }
+        });
+        innerNavDialog = builder.create();
     }
 
     @Override
@@ -378,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements RouteSearch.OnRou
                 double longitude = latlonPoint.getLongitude();//经度
                 double latitude = latlonPoint.getLatitude();//纬度
 
-
+                Log.e("经纬度",longitude+"  "+latitude);
                 MarkerOptions markerOptions = new MarkerOptions();
                 BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromResource(R.mipmap.ic_launcher);
                 latlog = new LatLng(latitude, longitude, true);
